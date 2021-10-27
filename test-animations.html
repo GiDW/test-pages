@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test animations</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <style>
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .text-align-center {
+        text-align: center;
+    }
+
+    .gdw-cube-container {
+        margin-top: 100px;
+        margin-bottom: 100px;
+        perspective: 1000px;
+        perspective-origin: 50% 50%;
+    }
+
+    .gdw-cube {
+        margin: auto;
+        position: relative;
+        height: 200px;
+        width: 200px;
+        transform-style: preserve-3d;
+    }
+
+    .gdw-cube-side {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        opacity: 0.6;
+        color: transparent;
+    }
+
+    .gdw-cube-side--front {
+        transform: translateZ(100px);
+        background-color: red;
+    }
+
+    .gdw-cube-side--back {
+        transform: translateZ(-100px) rotateY(180deg);
+        background-color: yellow;
+    }
+
+    .gdw-cube-side--right {
+        transform: rotateY(-270deg) translateX(100px);
+        transform-origin: top right;
+        background-color: green;
+    }
+
+    .gdw-cube-side--left {
+        transform: rotateY(270deg) translateX(-100px);
+        transform-origin: center left;
+        background-color: blue;
+    }
+
+    .gdw-cube-side--top {
+        transform: rotateX(-270deg) translateY(-100px);
+        transform-origin: top center;
+        background-color: white;
+    }
+
+    .gdw-cube-side--bottom {
+        transform: rotateX(270deg) translateY(100px);
+        transform-origin: bottom center;
+        background-color: dodgerblue;
+    }
+
+    @keyframes rotate {
+        from {
+            transform: rotateX(0deg) rotateY(0deg);
+        }
+
+        to {
+            transform: rotateX(360deg) rotateY(360deg);
+        }
+    }
+
+    .gdw-cube.gdw-cube--spinning {
+        animation: rotate 2s infinite linear;
+    }
+
+    .gdw-sliding-container {
+        position: relative;
+        margin-top: 32px;
+        margin-bottom: 32px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 250px;
+        height: 50px;
+    }
+
+    .gdw-slider {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 50px;
+        height: 50px;
+        background-color: red;
+    }
+
+    @keyframes sliding-1 {
+        0% {
+            transform: translateX(0px);
+        }
+
+        50% {
+            transform: translateX(200px);
+        }
+
+        100% {
+            transform: translateX(0px);
+        }
+    }
+
+    .gdw-slider.gdw-slider--sliding-1 {
+        animation: sliding-1 2s infinite;
+    }
+
+    .gdw-slider-2 {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 50px;
+        height: 50px;
+        background-color: dodgerblue;
+    }
+
+    @keyframes sliding-2 {
+        0% {
+            transform: translate3d(0, 0, 0);
+        }
+
+        50% {
+            transform: translate3d(200px, 0, 0);
+        }
+
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    .gdw-slider-2.gdw-slider--sliding-2 {
+        animation: sliding-2 2s infinite;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        body {
+            color: #ffffff;
+            background-color: #303030;
+        }
+    }
+    </style>
+</head>
+<body>
+    <h1 class="text-align-center">Cube</h1>
+    <div class="gdw-cube-container">
+        <div class="gdw-cube gdw-cube--spinning">
+            <div class="gdw-cube-side gdw-cube-side--front">Front</div>
+            <div class="gdw-cube-side gdw-cube-side--back">Back</div>
+            <div class="gdw-cube-side gdw-cube-side--top">Top</div>
+            <div class="gdw-cube-side gdw-cube-side--bottom">Bottom</div>
+            <div class="gdw-cube-side gdw-cube-side--left">Left</div>
+            <div class="gdw-cube-side gdw-cube-side--right">Right</div>
+        </div>
+    </div>
+    <h1 class="text-align-center">Sliding</h1>
+    <div class="gdw-sliding-container">
+        <div class="gdw-slider gdw-slider--sliding-1"></div>
+    </div>
+    <div class="gdw-sliding-container">
+        <div class="gdw-slider-2 gdw-slider--sliding-2"></div>
+    </div>
+</body>
+</html>

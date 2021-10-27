@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Observables</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+<body>
+<script src="https://unpkg.com/rxjs/bundles/rxjs.umd.min.js"></script>
+<script>
+(function () {
+
+    // test1()
+    // test2()
+    // test3()
+    // test4()
+    // test5()
+    test6()
+
+    function test1 () {
+
+        let _tStart
+
+        let o1 = new rxjs.Observable(subscriber => {
+            console.log('O1 subscriber', (Date.now() - _tStart))
+            let _id = setTimeout(() => {
+                console.log('O1 subscriber next', (Date.now() - _tStart))
+                subscriber.next('O1')
+                subscriber.complete()
+            }, 2000)
+            return () => {
+                console.log('O1 unsubscribe')
+                clearTimeout(_id)
+            }
+        })
+
+        let o2 = new rxjs.Observable(subscriber => {
+            console.log('O2 subscriber', (Date.now() - _tStart))
+            let _id = setTimeout(() => {
+                console.log('O2 subscriber next', (Date.now() - _tStart))
+                subscriber.next('O2')
+                subscriber.complete()
+            }, 3000)
+            return () => {
+                console.log('O2 unsubscribe')
+                clearTimeout(_id)
+            }
+        })
+
+        let o3 = new rxjs.Observable(subscriber => {
+            console.log('O3 subscriber', (Date.now() - _tStart))
+            let _id = setTimeout(() => {
+                console.log('O3 subscriber next', (Date.now() - _tStart))
+                subscriber.next('O3')
+                subscriber.complete()
+            }, 4000)
+            return () => {
+                console.log('O3 unsubscribe')
+                clearTimeout(_id)
+            }
+        })
+
+        let o4 = new rxjs.Observable(subscriber => {
+            console.log('O4 subscriber', (Date.now() - _tStart))
+            let _id = setTimeout(() => {
+                console.log('O4 subscriber error', (Date.now() - _tStart))
+                subscriber.error('ERR O4')
+            }, 100)
+            return () => {
+                console.log('O4 unsubscribe')
+                clearTimeout(_id)
+            }
+        })
+
+        let d1 = rxjs.timer(1000).pipe(rxjs.operators.switchMapTo(o1))
+
+        a = rxjs.merge.apply(
+            null,
+            [
+                o4.pipe(
+                    rxjs.operators.catchError(err => rxjs.of(null)),
+                    rxjs.operators.filter(v => !!v)
+                ),
+                d1,
+                o2,
+                o3
+            ]
+        ).pipe(rxjs.operators.first())
+
+        _tStart = Date.now()
+
+        console.log('TEST 1')
+
+        a.subscribe({
+            next: next => console.log('NEXT', next),
+            error: error => console.log('ERROR', error),
+            complete: result => console.log('COMPLETE', result)
+        })
+
+        function _createObserver(name) {
+
+            return new rxjs.Observable(subscriber => {
+                console.log(name + ' subscriber', (Date.now() - _tStart))
+                let _id = setTimeout(() => {
+                    console.log(name + ' subscriber next', (Date.now() - _tStart))
+                    subscriber.next(name)
+                    subscriber.complete()
+                }, 4000)
+                return () => {
+                    console.log(name + ' unsubscribe')
+                    clearTimeout(_id)
+                }
+            })
+        }
+    }
+
+    function test2 () {
+
+        let b = new rxjs.Observable(subscriber => {
+            console.log('Observable B')
+            let _id = setTimeout(() => {
+                subscriber.error('LOL')
+            }, 1000)
+            return () => {
+                console.log('B unsub')
+                clearTimeout(_id)
+            }
+        })
+
+        console.log('TEST 2')
+
+        b.pipe(rxjs.operators.first()).subscribe({
+            next: next => console.log('NEXT ALT', next),
+            error: error => console.log('ERROR ALT', error),
+            complete: result => console.log('COMPLETE ALT', result)
+        })
+    }
+
+    function test3 () {
+
+        const abc = {
+            val: true
+        }
+
+        const o1 = new rxjs.BehaviorSubject(null).pipe(rxjs.operators.filter(value => {
+            return !!(abc.val && value)
+        }))
+
+        o1.subscribe({
+            next: next => console.log('NEXT 1', next),
+            error: error => console.log('ERROR 1', error),
+            complete: result => console.log('COMPLETE 1', result)
+        })
+
+        console.log('NEXT "abc"')
+
+        o1.next('abc')
+
+        setTimeout(() => {
+
+            o1.subscribe({
+                next: next => console.log('NEXT 2', next),
+                error: error => console.log('ERROR 2', error),
+                complete: result => console.log('COMPLETE 2', result)
+            })
+
+        }, 1000)
+
+        setTimeout(() => {
+
+            console.log('NEXT null')
+
+            o1.next(null)
+
+        }, 2000)
+
+        setTimeout(() => {
+
+            o1.subscribe({
+                next: next => console.log('NEXT 3', next),
+                error: error => console.log('ERROR 3', error),
+                complete: result => console.log('COMPLETE 3', result)
+            })
+
+        }, 3000)
+
+        setTimeout(() => {
+
+            console.log('NEXT "def"')
+
+            o1.next('def')
+
+        }, 4000)
+
+        setTimeout(() => {
+
+            console.log('abc.val false')
+
+            abc.val = false
+
+            console.log('NEXT 12')
+
+            o1.next(12)
+
+        }, 4500)
+
+        setTimeout(() => {
+
+            console.log('abc.val true')
+
+            abc.val = true
+
+            console.log('NEXT 36')
+
+            o1.next(36)
+
+        }, 4750)
+
+        setTimeout(() => {
+
+            console.log('COMPLETE')
+
+            o1.complete()
+
+        }, 5000)
+
+        setTimeout(() => {
+
+            o1.subscribe({
+                next: next => console.log('NEXT 4', next),
+                error: error => console.log('ERROR 4', error),
+                complete: result => console.log('COMPLETE 4', result)
+            })
+
+        }, 6000)
+
+        setTimeout(() => {
+
+            console.log('NEXT "LOL"')
+
+            o1.next('LOL')
+
+        }, 7000)
+    }
+
+    function test4 () {
+
+        let _tStart = Date.now()
+
+        const o1 = new rxjs.Observable(subscriber => {
+            console.log('O1 subscriber', (Date.now() - _tStart))
+            let _id = setTimeout(() => {
+                console.log('O1 subscriber next', (Date.now() - _tStart))
+                // subscriber.next('O1')
+                subscriber.complete()
+                // subscriber.error('O1')
+            }, 4000)
+            return () => {
+                console.log('O1 unsubscribe')
+                clearTimeout(_id)
+            }
+        })
+
+        const o2 = new rxjs.Observable(subscriber => {
+            console.log('O2 subscriber', (Date.now() - _tStart))
+            let _id = setTimeout(() => {
+                console.log('O2 subscriber next', (Date.now() - _tStart))
+                subscriber.next('O2')
+                subscriber.complete()
+            }, 4000)
+            return () => {
+                console.log('O2 unsubscribe')
+                clearTimeout(_id)
+            }
+        })
+
+        const o3 = new rxjs.Observable(subscriber => {
+            console.log('O3 subscriber', (Date.now() - _tStart))
+            let _id = setTimeout(() => {
+                console.log('O3 subscriber next', (Date.now() - _tStart))
+                subscriber.next('O3')
+                subscriber.complete()
+            }, 4000)
+            return () => {
+                console.log('O3 unsubscribe')
+                clearTimeout(_id)
+            }
+        })
+
+        const d2 = rxjs.timer(1000).pipe(rxjs.operators.switchMapTo(o2))
+        const d3 = rxjs.timer(2000).pipe(rxjs.operators.switchMapTo(o3))
+
+        const a = rxjs.merge.apply(null, [
+            o1,
+            d2,
+            d3
+        ]).pipe(rxjs.operators.first())
+
+        .subscribe({
+            next: next => console.log('NEXT', next),
+            error: error => console.log('ERROR', error),
+            complete: result => console.log('COMPLETE', result)
+        })
+    }
+
+    function test5 () {
+
+        const sub = new rxjs.BehaviorSubject(null)
+
+        const o1 = sub.pipe(
+            // rxjs.operators.catchError(err => rxjs.of(null)),
+            rxjs.operators.filter(value => !!value)
+        )
+
+        const sub1 = o1.subscribe({
+            next: next => console.log('NEXT 1', next),
+            error: error => console.log('ERROR 1', error),
+            complete: result => console.log('COMPLETE 1', result)
+        })
+
+        const sub2 = o1.subscribe({
+            next: next => console.log('NEXT 2', next),
+            error: error => console.log('ERROR 2', error),
+            complete: result => console.log('COMPLETE 2', result)
+        })
+
+        console.log('subject.next "abc"')
+        // sub.next('abc')
+        o1.next('abc')
+
+        console.log('subject.next null')
+        // sub.next(null)
+        o1.next(null)
+
+        console.log('subject.next 12')
+        // sub.next(12)
+        o1.next(12)
+
+        console.log('subject.error "err"')
+        // sub.error('err')
+        o1.error('err')
+
+        console.log('subject.next 42')
+        // sub.next(42)
+        o1.next(42)
+
+        setTimeout(() => {
+
+            const sub2 = o1.subscribe({
+                next: next => console.log('NEXT 3', next),
+                error: error => console.log('ERROR 3', error),
+                complete: result => console.log('COMPLETE 3', result)
+            })
+        }, 1000)
+    }
+
+    function test6 () {
+
+        const _tStart = Date.now()
+
+        console.log('START')
+
+        rxjs.merge.apply(
+            null,
+            [
+                createObservable('ONE', 200, 'ERROR ONE').pipe(
+                    rxjs.operators.catchError(err => rxjs.of(null)),
+                    rxjs.operators.filter(v => !!v),
+                    // rxjs.operators.first()
+                    rxjs.operators.take(1)
+                ),
+                rxjs.timer(500).pipe(rxjs.operators.switchMapTo(
+                    createObservable('TWO', 200, 'ERROR TWO').pipe(
+                        rxjs.operators.catchError(err => rxjs.of(null)),
+                        rxjs.operators.filter(v => !!v),
+                        // rxjs.operators.first()
+                        rxjs.operators.take(1)
+                    )
+                )),
+                rxjs.timer(1000).pipe(rxjs.operators.switchMapTo(
+                    createObservable('THREE', 2000).pipe(
+                        rxjs.operators.catchError(err => rxjs.of(null)),
+                        rxjs.operators.filter(v => !!v),
+                        // rxjs.operators.first()
+                        rxjs.operators.take(1)
+                    )
+                )),
+                rxjs.timer(2000).pipe(rxjs.operators.switchMapTo(
+                    createObservable('FOUR', 2000).pipe(
+                        rxjs.operators.catchError(err => rxjs.of(null)),
+                        rxjs.operators.filter(v => !!v),
+                        // rxjs.operators.first()
+                        rxjs.operators.take(1)
+                    )
+                )),
+                rxjs.timer(3000).pipe(rxjs.operators.switchMapTo(
+                    createObservable('FIVE', 2000).pipe(
+                        rxjs.operators.catchError(err => rxjs.of(null)),
+                        rxjs.operators.filter(v => !!v),
+                        // rxjs.operators.first()
+                        rxjs.operators.take(1)
+                    )
+                ))
+            ]
+        ).pipe(rxjs.operators.first()).subscribe({
+            next: next => console.log('NEXT', next),
+            error: error => console.log('ERROR', error),
+            complete: result => console.log('COMPLETE', result)
+        })
+
+        function createObservable (name, timeout, error) {
+
+            return new rxjs.Observable(subscriber => {
+                console.log(name + ' subscriber', (Date.now() - _tStart))
+                let _id = setTimeout(() => {
+                    if (error) {
+                        console.log(name + ' subscriber error', (Date.now() - _tStart))
+                        subscriber.error(error)
+                    } else {
+                        console.log(name + ' subscriber next', (Date.now() - _tStart))
+                        subscriber.next(name)
+                        subscriber.complete()
+                    }
+                }, timeout)
+                return () => {
+                    console.log(name + ' unsubscribe')
+                    clearTimeout(_id)
+                }
+            })
+        }
+    }
+
+}())
+</script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Wake Lock</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+  </head>
+  <body>
+    <h1>Wake Lock</h1>
+    <p id="pStateSupported"></p>
+    <p id="pStateActive"></p>
+    <button id="btnRequest">REQUEST</button>
+    <button id="btnRelease">RELEASE</button>
+    <br>
+    <button id="btnSchedule">SCHEDULE</button>
+    <script>
+      ;(function () {
+        var _pStateSupported, _pStateActive
+        var _btnRequest, _btnRelease, _btnSchedule
+        var _txtStateSupported, _txtStateActive
+        var _wakeLockSupported
+        var _wakeLockActive
+        var _wakeLock
+        var _wakeTimeoutId
+        _wakeTimeoutId = 0
+        _wakeLockSupported = false
+        _wakeLockActive = false
+        _wakeLockActive = null
+        document.addEventListener('DOMContentLoaded', start)
+        function start () {
+          _getDomElements()
+          _checkWakeLock()
+        }
+        function _getDomElements () {
+          _pStateSupported = document.getElementById('pStateSupported')
+          _txtStateSupported = document.createTextNode('')
+          _pStateSupported.appendChild(_txtStateSupported)
+          _pStateActive = document.getElementById('pStateActive')
+          _txtStateActive = document.createTextNode('')
+          _pStateActive.appendChild(_txtStateActive)
+          _btnRequest = document.getElementById('btnRequest')
+          _btnRequest.addEventListener('click', _clkRequest)
+          _btnRelease = document.getElementById('btnRelease')
+          _btnRelease.addEventListener('click', _clkRelease)
+          _btnSchedule = document.getElementById('btnSchedule')
+          _btnSchedule.addEventListener('click', _clkSchedule)
+        }
+        function _checkWakeLock() {
+          if ('wakeLock' in navigator) {
+            _wakeLockSupported = true
+          } else {
+            _wakeLockSupported = false
+          }
+          _txtStateSupported.nodeValue = _wakeLockSupported
+            ? 'WakeLock supported'
+            : 'WakeLock not supported'
+            _txtStateActive.nodeValue = _wakeLockSupported ? 'Inactive' : '-'
+        }
+        function _clkRequest () {
+          if (_wakeLockSupported && !_wakeLockActive) {
+            navigator.wakeLock.request('screen')
+              .then(_onWakeLockRequest, _onWakeLockRequestError)
+          }
+        }
+        function _clkRelease () {
+          if (_wakeLock) _wakeLock.release()
+          _wakeLock = null
+        }
+        function _clkSchedule () {
+          clearTimeout(_wakeTimeoutId)
+          _wakeTimeoutId = setTimeout(
+            _onTimeout,
+            60000
+          )
+        }
+        function _onWakeLockRequest (result) {
+          console.log('WakeLock result', result)
+          _wakeLockActive = true
+          _wakeLock = result
+          _wakeLock.addEventListener('release', _onRelease)
+          _txtStateActive.nodeValue = 'Active'
+        }
+        function _onWakeLockRequestError (error) {
+          console.log('WakeLock error', error)
+          _wakeLockActive = false
+          _txtStateActive.nodeValue = 'Error: ' + error
+        }
+        function _onRelease () {
+          _wakeLockActive = false
+          _txtStateActive.nodeValue = 'Inactive'
+        }
+        function _onTimeout () {
+          _clkRequest()
+        }
+      })()
+    </script>
+  </body>
+</html>

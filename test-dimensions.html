@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test page</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <style>
+        .bold {
+            font-weight: bold;
+        }
+        .margin-right-1 {
+            margin-right: 1em;
+        }
+    </style>
+</head>
+<body>
+    <header><h1>Dimensions</h1></header>
+    <section>
+        <h2>Window dimensions</h2>
+        <p>
+            <span class="margin-right-1">Width:</span><span id="resWindowWidth" class="bold"></span>
+        </p>
+        <p>
+            <span class="margin-right-1">Height:</span><span id="resWindowHeight" class="bold"></span>
+        </p>
+    </section>
+    <section>
+        <h2>Full-screen</h2>
+        <button id="btnFSEnter">ENTER</button><button id="btnFSExit">EXIT</button>
+    </section>
+    <script>
+    (function () {
+        'use strict'
+
+        var _resWindowWidth, _resWindowHeight
+        var _txtWindowWidth, _txtWindowHeight
+        var _btnFSEnter, _btnFSExit
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            start,
+            {
+                capture: false,
+                passive: true
+            }
+        )
+
+        function start () {
+            console.log('Start')
+
+            _resWindowWidth = document.getElementById('resWindowWidth')
+            _resWindowHeight = document.getElementById('resWindowHeight')
+
+            _btnFSEnter = document.getElementById('btnFSEnter')
+            _btnFSExit = document.getElementById('btnFSExit')
+
+            _txtWindowWidth = document.createTextNode('')
+            _txtWindowHeight = document.createTextNode('')
+
+            _resWindowWidth.appendChild(_txtWindowWidth)
+            _resWindowHeight.appendChild(_txtWindowHeight)
+
+            _btnFSEnter.addEventListener('click', _onEnterFullScreen)
+            _btnFSExit.addEventListener('click', _onExitFullScreen)
+
+            window.addEventListener('resize', _onResize)
+            _updateWindowDimensions()
+        }
+
+        function _onResize () {
+            _updateWindowDimensions()
+        }
+
+        function _updateWindowDimensions () {
+            _txtWindowWidth.nodeValue = window.innerWidth
+            _txtWindowHeight.nodeValue = window.innerHeight
+        }
+
+        function _onEnterFullScreen () {
+            document.documentElement.requestFullscreen()
+        }
+
+        function _onExitFullScreen () {
+            document.exitFullscreen()
+        }
+    }())
+    </script>
+</body>
+</html>

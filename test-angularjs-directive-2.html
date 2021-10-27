@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test page</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+<body ng-controller="rootCtrl as root">
+    <div dir-one
+         a="root.a"
+         b="root.b"
+         c="root.c"
+         d="root.d"></div>
+    <button ng-click="root.onChangeA()">Change A</button>
+    <button ng-click="root.onChangeB()">Change B</button>
+    <button ng-click="root.onChangeC()">Change C</button>
+    <button ng-click="root.onChangeD()">Change D</button>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+    <script>
+    (function () {
+        'use strict'
+
+        angular.module('testApp', [])
+            .directive('dirOne', dirOne)
+            .controller('rootCtrl', [
+                '$scope',
+                rootCtrl
+            ])
+
+        function dirOne () {
+            return {
+                restrict: 'A',
+                scope: {
+                    a: '@',
+                    b: '=',
+                    c: '<',
+                    d: '&'
+                },
+                controller: [
+                    '$scope',
+                    controller
+                ]
+            }
+
+            function controller ($scope) {
+                console.log('dirOne ctrl')
+
+                this.$postLink = onPostLink
+                this.$onChanges = onChanges
+
+                function onPostLink () {
+                    console.log('dirOne post link', this, $scope)
+                }
+
+                function onChanges (changes) {
+                    console.log('dirOne changes', changes, this, $scope)
+                }
+            }
+        }
+
+        function rootCtrl ($scope) {
+            var root
+            root = this
+
+            console.log('Root ctrl')
+
+            root.a = 'a'
+            root.b = {
+                a: 12
+            }
+            root.c = {
+                b: 'lol'
+            }
+            root.d = function () {
+                console.log('D v1')
+            }
+
+            root.onChangeA = onChangeA
+            root.onChangeB = onChangeB
+            root.onChangeC = onChangeC
+            root.onChangeD = onChangeD
+
+            function onChangeA () {
+                root.a += 'a'
+            }
+
+            function onChangeB () {
+                root.b = {
+                    b: 42
+                }
+            }
+
+            function onChangeC () {
+                root.c = {
+                    abc: false
+                }
+            }
+
+            function onChangeD () {
+                root.d = function () {
+                    console.log('D changed')
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', start)
+
+        function start () {
+            console.log('Start')
+            angular.bootstrap(
+                document,
+                [
+                    'testApp'
+                ],
+                {
+                    strictDi: true
+                }
+            );
+        }
+    }())
+    </script>
+</body>
+</html>

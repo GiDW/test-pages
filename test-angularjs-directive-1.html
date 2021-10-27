@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test page</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+<body ng-controller="rootCtrl as root">
+    <div test-dir
+         var1="root.var1"
+         var2="root.var2"
+         var3="root.var3">Some div</div>
+    <test-component var1="root.var1"
+                    var2="root.var2"
+                    var3="root.var3"></test-component>
+    <button ng-click="root.onAdd()">ADD</button>
+    <button ng-click="root.onExtra()">EXTRA</button>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+    <script>
+    (function () {
+        'use strict'
+
+        angular.module('testApp', [])
+        angular.module('testApp')
+            .directive('testDir', testDir)
+            .component('testComponent', {
+                bindings: {
+                    var1: '<',
+                    var2: '<',
+                    var3: '<',
+                    var4: '<',
+                    var5: '<',
+                    var6: '<'
+                },
+                controller: [
+                    '$scope',
+                    testCompCtrl
+                ]
+            })
+            .controller('rootCtrl', [
+                '$rootScope',
+                '$scope',
+                rootCtrl
+            ])
+
+        function testDir () {
+            return {
+                restrict: 'A',
+                scope: {
+                    var1: '<',
+                    var2: '<',
+                    var3: '<',
+                    var4: '<',
+                    var5: '<',
+                    var6: '<'
+                },
+                controller: [
+                    '$scope',
+                    controller
+                ]
+            }
+
+            function controller ($scope) {
+                console.log('Test directive ctrl')
+
+                this.$postLink = onPostLink
+                this.$onChanges = onChanges
+
+                function onPostLink () {
+                    console.log('Test directive post link', this, $scope)
+                }
+
+                function onChanges (changes) {
+                    console.log('Test directive changes', changes, this, $scope)
+                }
+            }
+        }
+
+        function testCompCtrl ($scope) {
+            console.log('Test component ctrl')
+
+            this.$postLink = onPostLink
+            this.$onChanges = onChanges
+
+            function onPostLink () {
+                console.log('Test component post link', this, $scope)
+            }
+
+            function onChanges (changes) {
+                console.log('Test component changes', changes, this, $scope)
+            }
+        }
+
+        function rootCtrl ($rootScope, $scope) {
+            var root, _listeners
+            root = this
+            console.log('Root ctrl')
+            root.var1 = 2
+            root.var2 = {
+                value: 2
+            }
+            root.var3 = {
+                value: 2
+            }
+            $scope.var4 = 3
+            $scope.var5 = {
+                value: 2
+            }
+            $scope.var6 = {
+                value: 2
+            }
+            root.onAdd = onAdd
+            root.onExtra = onExtra
+
+            $scope.$on('$destroy', onDestroy)
+
+            _listeners = []
+            _listeners.push($rootScope.$on('EVT1', _onEvt))
+
+            function onAdd () {
+                var varPrev
+                console.log('onAdd', root)
+                root.var1++
+                root.var2.value++
+                varPrev = root.var3.value
+                root.var3 = {
+                    value: varPrev++
+                }
+                $scope.var4++
+                $scope.var5.value++
+                varPrev = $scope.var6.value
+                $scope.var6 = {
+                    value: varPrev++
+                }
+            }
+            function onExtra () {
+                console.log('onExtra')
+                $rootScope.$emit('EVT1', 'extra data')
+                console.log('After emit')
+            }
+            function _onEvt (event, data) {
+                console.log('EVENT')
+            }
+            function onDestroy () {
+                var length, i
+                console.log('Root ctrl destroy')
+                length = _listeners.length
+                for (i = 0; i < length; i++) {
+                    if (typeof _listeners[i] === 'function') {
+                        _listeners[i]()
+                    }
+                }
+            }
+        }
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            start,
+            {
+                capture: false,
+                passive: true
+            }
+        )
+
+        function start () {
+            console.log('Start')
+            angular.bootstrap(
+                document,
+                [
+                    'testApp'
+                ],
+                {
+                    strictDi: true
+                }
+            );
+        }
+    }())
+    </script>
+</body>
+</html>

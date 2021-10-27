@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Support</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+<body>
+    <div>
+        <h2>Passive listeners</h2>
+        <div id="divPassiveListenersStatus"></div>
+    </div>
+    <script>
+    (function () {
+        'use strict'
+
+        // A UTF-16 2 bytes; UTF-8 1 bytes
+        // ♥ UTF-16 2 bytes; UTF-8 3 bytes
+        // 𐐷 UTF-16 4 bytes; UTF-8 4 bytes
+
+        var divPassiveListenersStatus
+        var txtPassiveListenersStatus
+
+        document.addEventListener('DOMContentLoaded', start)
+
+        function start () {
+            console.log('Start')
+            initDOM()
+            checkSupport()
+        }
+
+        function initDOM () {
+            divPassiveListenersStatus = document.getElementById(
+                'divPassiveListenersStatus'
+            )
+            txtPassiveListenersStatus = document.createTextNode('unsupported')
+            divPassiveListenersStatus.appendChild(txtPassiveListenersStatus)
+        }
+
+        function checkSupport () {
+            var passiveSupported = false
+            var options = {}
+            Object.defineProperty(options, 'passive', {
+                get: function () {
+                    console.log('Passive property')
+                    passiveSupported = true
+                    return false
+                }
+            })
+            try {
+                window.addEventListener('test', null, options)
+                window.removeEventListener('test', null, options)
+            } catch (e) {
+                passiveSupported = false
+                console.log('Passive listeners - error', e)
+            }
+            txtPassiveListenersStatus.nodeValue = passiveSupported
+                ? 'supported'
+                : 'unsupported'
+        }
+    }())
+    </script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Local Storage</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+<body>
+    <div>
+        <h2>LocalStorage</h2>
+        <label>Amount in kB<input id="in-amount-1" type="number"></label>
+        <button id="btn-write-1">WRITE</button>
+        <button id="btn-clear-1">CLEAR ALL</button>
+    </div>
+    <div>
+        <h2>CacheStorage</h2>
+        <div>
+            <h3>Caches</h3>
+            <button id="btn-cache-1">ALL CACHES</button>
+            <button id="btn-cache-2">OPEN CACHE</button>
+            <button id="btn-cache-3">DELETE CACHE</button>
+        </div>
+        <div>
+            <h3>Cache</h3>
+            <button id="btn-cache-4">LIST</button>
+            <button id="btn-cache-5">PUT</button>
+            <button id="btn-cache-6">DELETE</button>
+            <button id="btn-cache-7">MATCH</button>
+        </div>
+    </div>
+    <script>
+    (function () {
+        'use strict'
+
+        // A UTF-16 2 bytes; UTF-8 1 bytes
+        // ♥ UTF-16 2 bytes; UTF-8 3 bytes
+        // 𐐷 UTF-16 4 bytes; UTF-8 4 bytes
+
+        var ABC = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .'
+        var ABC_LENGTH = 64
+        var ABC_BYTES = 128
+        var CHUNK = ABC + ABC + ABC + ABC + ABC + ABC + ABC + ABC
+
+        var CACHE_KEY = 'abc'
+        var CACHE_ITEM_KEY = 'abc'
+        var TEST_CACHE_URL = 'https://api.basalte.net/lol'
+        var _cache
+
+        var count = 0
+
+        var elInAmount1
+
+        document.addEventListener('DOMContentLoaded', start)
+
+        function start () {
+            console.log('Start')
+            initDOM()
+        }
+
+        function initDOM () {
+            var btnWrite1, btnClear1, btnCache1, btnCache2, btnCache3
+            var btnCache4, btnCache5, btnCache6, btnCache7
+            elInAmount1 = document.getElementById('in-amount-1')
+            btnWrite1 = document.getElementById('btn-write-1')
+            btnClear1 = document.getElementById('btn-clear-1')
+            btnCache1 = document.getElementById('btn-cache-1')
+            btnCache2 = document.getElementById('btn-cache-2')
+            btnCache3 = document.getElementById('btn-cache-3')
+            btnCache4 = document.getElementById('btn-cache-4')
+            btnCache5 = document.getElementById('btn-cache-5')
+            btnCache6 = document.getElementById('btn-cache-6')
+            btnCache7 = document.getElementById('btn-cache-7')
+            btnWrite1.addEventListener('click', _onWrite1)
+            btnClear1.addEventListener('click', _onClear1)
+            btnCache1.addEventListener('click', _onCache1)
+            btnCache2.addEventListener('click', _onCache2)
+            btnCache3.addEventListener('click', _onCache3)
+            btnCache4.addEventListener('click', _onCache4)
+            btnCache5.addEventListener('click', _onCache5)
+            btnCache6.addEventListener('click', _onCache6)
+            btnCache7.addEventListener('click', _onCache7)
+        }
+
+        function _onWrite1 () {
+            console.log('WRITE 1')
+            _writeLocalStorage('key' + count, _getKBAmount())
+            count++
+        }
+
+        function _onClear1 () {
+            console.log('CLEAR 1')
+            localStorage.clear()
+        }
+
+        function _onCache1 () {
+            caches.keys().then(
+                _onCacheKeys,
+                _onCacheKeysError
+            )
+
+            function _onCacheKeys (result) {
+                console.log('Cache keys', result)
+            }
+
+            function _onCacheKeysError (error) {
+                console.log('Cache keys ERROR', error)
+            }
+        }
+
+        function _onCache2 () {
+            caches.open(CACHE_KEY).then(
+                _onCacheOpen,
+                _onCacheOpenError
+            )
+
+            function _onCacheOpen (result) {
+                console.log('Cache open', result)
+                _cache = result
+            }
+
+            function _onCacheOpenError (error) {
+                console.log('Cache open ERROR', error)
+            }
+        }
+
+        function _onCache3 () {
+            caches.delete(CACHE_KEY).then(
+                _onCacheDelete,
+                _onCacheDeleteError
+            )
+
+            function _onCacheDelete (result) {
+                console.log('Cache delete', result)
+            }
+
+            function _onCacheDeleteError (error) {
+                console.log('Cache delete ERROR', error)
+            }
+        }
+
+        function _onCache4 () {
+            _getCache().then(_onCache, _onCacheError)
+
+            function _onCache (cache) {
+                cache.keys().then(
+                    _onCacheKeys,
+                    _onCacheKeysError
+                )
+
+                function _onCacheKeys (result) {
+                    console.log('cache keys', result)
+                }
+
+                function _onCacheKeysError (error) {
+                    console.log('cache keys error', error)
+                }
+            }
+
+            function _onCacheError (error) {
+                console.log('cache error', error)
+            }
+        }
+
+        function _onCache5 () {
+            _getCache().then(_onCache, _onCacheError)
+
+            function _onCache (cache) {
+                var _request, _response
+                _request = new Request(TEST_CACHE_URL)
+                _response = new Response('arbitrary data')
+                console.log('REQUEST', _request)
+                console.log('RESPONSE', _response)
+                cache.put(_request, _response).then(
+                    _onCachePut,
+                    _onCachePutError
+                )
+
+                function _onCachePut (result) {
+                    console.log('cache put', result)
+                }
+
+                function _onCachePutError (error) {
+                    console.log('cache put error', error)
+                }
+            }
+
+            function _onCacheError (error) {
+                console.log('cache error', error)
+            }
+        }
+
+        function _onCache6 () {
+            _getCache().then(_onCache, _onCacheError)
+
+            function _onCache (cache) {
+                var _request
+                _request = new Request(TEST_CACHE_URL)
+                cache.delete(_request).then(
+                    _onCacheDelete,
+                    _onCacheDeleteError
+                )
+
+                function _onCacheDelete (result) {
+                    console.log('cache delete', result)
+                }
+
+                function _onCacheDeleteError (error) {
+                    console.log('cache delete error', error)
+                }
+            }
+
+            function _onCacheError (error) {
+                console.log('cache error', error)
+            }
+        }
+
+        function _onCache7 () {
+            _getCache().then(_onCache, _onCacheError)
+
+            function _onCache (cache) {
+                var _request
+                _request = new Request(TEST_CACHE_URL)
+                cache.match(_request).then(
+                    _onCacheMatch,
+                    _onCacheMatchError
+                )
+
+                function _onCacheMatch (result) {
+                    console.log('cache match', result)
+                    result.text().then(
+                        _onBodyText,
+                        _onBodyTextError
+                    )
+
+                    function _onBodyText (result) {
+                        console.log('RESPONSE BODY TEXT', result)
+                    }
+
+                    function _onBodyTextError (error) {
+                        console.log('RESPONSE BODY TEXT ERROR', error)
+                    }
+                }
+
+                function _onCacheMatchError (error) {
+                    console.log('cache match error', error)
+                }
+            }
+
+            function _onCacheError (error) {
+                console.log('cache error', error)
+            }
+        }
+
+        function _getKBAmount () {
+            var strValue, value
+            if (elInAmount1) {
+                strValue = elInAmount1.value
+                if (strValue) {
+                    return parseInt(strValue, 10)
+                }
+            }
+            return 1
+        }
+
+        function _writeLocalStorage (key, amount) {
+            var i, data, length
+            data = ''
+            for (i = 0; i < amount; i++) {
+                data += CHUNK
+            }
+            length = data.length
+            console.log(
+                'Writing ' + amount + 'kB' +
+                ', actual ' + (2 * length) + ' bytes' +
+                ', string length ' + length
+            )
+            try {
+                localStorage.setItem(key, data)
+            } catch (error) {
+                console.log('setItem ERROR', error)
+            }
+        }
+
+        function _getCache () {
+            if (_cache) return Promise.resolve(_cache)
+            return caches.open(CACHE_KEY)
+        }
+    }())
+    </script>
+</body>
+</html>

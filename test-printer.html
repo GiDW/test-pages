@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test printer</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+<body>
+    <h1>Dymo printer</h1>
+    <form id="frmHost">
+        <label for="frmHostHost">Host</label>
+        <input type="text" name="frmHostHost">
+        <button>GO</button>
+    </form>
+    <script>
+        (function () {
+            const DEF_PORT = 41951
+            const DEF_PATH = 'DYMO/DLS/Printing'
+            const RES_GET_PRINTERS = 'GetPrinters'
+            const RES_PRINT_LABEL = 'PrintLabel'
+
+            const EX_LABEL = `<?xml version="1.0" encoding="utf-8"?>
+<DesktopLabel Version="1">
+  <DYMOLabel Version="3">
+    <Description>DYMO Label</Description>
+    <Orientation>Landscape</Orientation>
+    <LabelName>Address1982991</LabelName>
+    <InitialLength>0</InitialLength>
+    <BorderStyle>SolidLine</BorderStyle>
+    <DYMORect>
+      <DYMOPoint>
+        <X>0.23</X>
+        <Y>0.06</Y>
+      </DYMOPoint>
+      <Size>
+        <Width>3.21</Width>
+        <Height>0.9966667</Height>
+      </Size>
+    </DYMORect>
+    <BorderColor>
+      <SolidColorBrush>
+        <Color A="1" R="0" G="0" B="0"></Color>
+      </SolidColorBrush>
+    </BorderColor>
+    <BorderThickness>1</BorderThickness>
+    <Show_Border>False</Show_Border>
+    <DynamicLayoutManager>
+      <RotationBehavior>ClearObjects</RotationBehavior>
+      <LabelObjects>
+        <TextObject>
+          <Name>ITextObject0</Name>
+          <Brushes>
+            <BackgroundBrush>
+              <SolidColorBrush>
+                <Color A="0" R="0" G="0" B="0"></Color>
+              </SolidColorBrush>
+            </BackgroundBrush>
+            <BorderBrush>
+              <SolidColorBrush>
+                <Color A="1" R="0" G="0" B="0"></Color>
+              </SolidColorBrush>
+            </BorderBrush>
+            <StrokeBrush>
+              <SolidColorBrush>
+                <Color A="1" R="0" G="0" B="0"></Color>
+              </SolidColorBrush>
+            </StrokeBrush>
+            <FillBrush>
+              <SolidColorBrush>
+                <Color A="0" R="0" G="0" B="0"></Color>
+              </SolidColorBrush>
+            </FillBrush>
+          </Brushes>
+          <Rotation>Rotation0</Rotation>
+          <OutlineThickness>1</OutlineThickness>
+          <IsOutlined>False</IsOutlined>
+          <BorderStyle>SolidLine</BorderStyle>
+          <Margin>
+            <DYMOThickness Left="0" Top="0" Right="0" Bottom="0" />
+          </Margin>
+          <HorizontalAlignment>Center</HorizontalAlignment>
+          <VerticalAlignment>Middle</VerticalAlignment>
+          <FitMode>AlwaysFit</FitMode>
+          <IsVertical>False</IsVertical>
+          <FormattedText>
+            <FitMode>AlwaysFit</FitMode>
+            <HorizontalAlignment>Center</HorizontalAlignment>
+            <VerticalAlignment>Middle</VerticalAlignment>
+            <IsVertical>False</IsVertical>
+            <LineTextSpan>
+              <TextSpan>
+                <Text>Ellie labels</Text>
+                <FontInfo>
+                  <FontName>Segoe UI</FontName>
+                  <FontSize>24.4</FontSize>
+                  <IsBold>False</IsBold>
+                  <IsItalic>False</IsItalic>
+                  <IsUnderline>False</IsUnderline>
+                  <FontBrush>
+                    <SolidColorBrush>
+                      <Color A="1" R="0" G="0" B="0"></Color>
+                    </SolidColorBrush>
+                  </FontBrush>
+                </FontInfo>
+              </TextSpan>
+            </LineTextSpan>
+          </FormattedText>
+          <ObjectLayout>
+            <DYMOPoint>
+              <X>1.0325</X>
+              <Y>0.3091667</Y>
+            </DYMOPoint>
+            <Size>
+              <Width>1.605</Width>
+              <Height>0.4983333</Height>
+            </Size>
+          </ObjectLayout>
+        </TextObject>
+      </LabelObjects>
+    </DynamicLayoutManager>
+  </DYMOLabel>
+  <LabelApplication>Blank</LabelApplication>
+  <DataTable>
+    <Columns></Columns>
+    <Rows></Rows>
+  </DataTable>
+</DesktopLabel>`
+
+            const EX_LBL_2 =`<?xml version="1.0" encoding="utf-8"?>
+  <DesktopLabel Version="1">
+    <DYMOLabel Version="3">
+      <Description>DYMO Label</Description>
+      <Orientation>Landscape</Orientation>
+      <LabelName>SmallS0722530</LabelName>
+      <InitialLength>0</InitialLength>
+      <BorderStyle>SolidLine</BorderStyle>
+      <DYMORect>
+        <DYMOPoint>
+          <X>0.1</X>
+          <Y>0.05666666</Y>
+        </DYMOPoint>
+        <Size>
+          <Width>0.84</Width>
+          <Height>0.9033334</Height>
+        </Size>
+      </DYMORect>
+      <BorderColor>
+        <SolidColorBrush>
+          <Color A="1" R="0" G="0" B="0"></Color>
+        </SolidColorBrush>
+      </BorderColor>
+      <BorderThickness>1</BorderThickness>
+      <Show_Border>False</Show_Border>
+      <DynamicLayoutManager>
+        <RotationBehavior>ClearObjects</RotationBehavior>
+        <LabelObjects>
+          <TextObject>
+            <Name>ITextObject1</Name>
+            <Brushes>
+              <BackgroundBrush>
+                <SolidColorBrush>
+                  <Color A="0" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </BackgroundBrush>
+              <BorderBrush>
+                <SolidColorBrush>
+                  <Color A="1" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </BorderBrush>
+              <StrokeBrush>
+                <SolidColorBrush>
+                  <Color A="1" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </StrokeBrush>
+              <FillBrush>
+                <SolidColorBrush>
+                  <Color A="0" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </FillBrush>
+            </Brushes>
+            <Rotation>Rotation0</Rotation>
+            <OutlineThickness>1</OutlineThickness>
+            <IsOutlined>False</IsOutlined>
+            <BorderStyle>SolidLine</BorderStyle>
+            <Margin>
+              <DYMOThickness Left="0" Top="0" Right="0" Bottom="0" />
+            </Margin>
+            <HorizontalAlignment>Center</HorizontalAlignment>
+            <VerticalAlignment>Middle</VerticalAlignment>
+            <FitMode>AlwaysFit</FitMode>
+            <IsVertical>False</IsVertical>
+            <FormattedText>
+              <FitMode>AlwaysFit</FitMode>
+              <HorizontalAlignment>Center</HorizontalAlignment>
+              <VerticalAlignment>Middle</VerticalAlignment>
+              <IsVertical>False</IsVertical>
+              <LineTextSpan>
+                <TextSpan>
+                  <Text>0360-03</Text>
+                  <FontInfo>
+                    <FontName>Segoe UI</FontName>
+                    <FontSize>7.5</FontSize>
+                    <IsBold>False</IsBold>
+                    <IsItalic>False</IsItalic>
+                    <IsUnderline>False</IsUnderline>
+                    <FontBrush>
+                      <SolidColorBrush>
+                        <Color A="1" R="0" G="0" B="0"></Color>
+                      </SolidColorBrush>
+                    </FontBrush>
+                  </FontInfo>
+                </TextSpan>
+              </LineTextSpan>
+            </FormattedText>
+            <ObjectLayout>
+              <DYMOPoint>
+                <X>0.3048576</X>
+                <Y>0.06666666</Y>
+              </DYMOPoint>
+              <Size>
+                <Width>0.3989444</Width>
+                <Height>0.1721082</Height>
+              </Size>
+            </ObjectLayout>
+          </TextObject>
+          <TextObject>
+            <Name>ITextObject0</Name>
+            <Brushes>
+              <BackgroundBrush>
+                <SolidColorBrush>
+                  <Color A="0" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </BackgroundBrush>
+              <BorderBrush>
+                <SolidColorBrush>
+                  <Color A="1" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </BorderBrush>
+              <StrokeBrush>
+                <SolidColorBrush>
+                  <Color A="1" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </StrokeBrush>
+              <FillBrush>
+                <SolidColorBrush>
+                  <Color A="0" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </FillBrush>
+            </Brushes>
+            <Rotation>Rotation0</Rotation>
+            <OutlineThickness>1</OutlineThickness>
+            <IsOutlined>False</IsOutlined>
+            <BorderStyle>SolidLine</BorderStyle>
+            <Margin>
+              <DYMOThickness Left="0" Top="0" Right="0" Bottom="0" />
+            </Margin>
+            <HorizontalAlignment>Center</HorizontalAlignment>
+            <VerticalAlignment>Middle</VerticalAlignment>
+            <FitMode>AlwaysFit</FitMode>
+            <IsVertical>False</IsVertical>
+            <FormattedText>
+              <FitMode>AlwaysFit</FitMode>
+              <HorizontalAlignment>Center</HorizontalAlignment>
+              <VerticalAlignment>Middle</VerticalAlignment>
+              <IsVertical>False</IsVertical>
+              <LineTextSpan>
+                <TextSpan>
+                  <Text>MAC</Text>
+                  <FontInfo>
+                    <FontName>Segoe UI</FontName>
+                    <FontSize>7.7</FontSize>
+                    <IsBold>False</IsBold>
+                    <IsItalic>False</IsItalic>
+                    <IsUnderline>False</IsUnderline>
+                    <FontBrush>
+                      <SolidColorBrush>
+                        <Color A="1" R="0" G="0" B="0"></Color>
+                      </SolidColorBrush>
+                    </FontBrush>
+                  </FontInfo>
+                </TextSpan>
+              </LineTextSpan>
+            </FormattedText>
+            <ObjectLayout>
+              <DYMOPoint>
+                <X>0.3783135</X>
+                <Y>0.5961042</Y>
+              </DYMOPoint>
+              <Size>
+                <Width>0.2433729</Width>
+                <Height>0.1545584</Height>
+              </Size>
+            </ObjectLayout>
+          </TextObject>
+          <TextObject>
+            <Name>ITextObject3</Name>
+            <Brushes>
+              <BackgroundBrush>
+                <SolidColorBrush>
+                  <Color A="0" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </BackgroundBrush>
+              <BorderBrush>
+                <SolidColorBrush>
+                  <Color A="1" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </BorderBrush>
+              <StrokeBrush>
+                <SolidColorBrush>
+                  <Color A="1" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </StrokeBrush>
+              <FillBrush>
+                <SolidColorBrush>
+                  <Color A="0" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </FillBrush>
+            </Brushes>
+            <Rotation>Rotation0</Rotation>
+            <OutlineThickness>1</OutlineThickness>
+            <IsOutlined>False</IsOutlined>
+            <BorderStyle>SolidLine</BorderStyle>
+            <Margin>
+              <DYMOThickness Left="0" Top="0" Right="0" Bottom="0" />
+            </Margin>
+            <HorizontalAlignment>Center</HorizontalAlignment>
+            <VerticalAlignment>Middle</VerticalAlignment>
+            <FitMode>AlwaysFit</FitMode>
+            <IsVertical>False</IsVertical>
+            <FormattedText>
+              <FitMode>AlwaysFit</FitMode>
+              <HorizontalAlignment>Center</HorizontalAlignment>
+              <VerticalAlignment>Middle</VerticalAlignment>
+              <IsVertical>False</IsVertical>
+              <LineTextSpan>
+                <TextSpan>
+                  <Text>Sn</Text>
+                  <FontInfo>
+                    <FontName>Segoe UI</FontName>
+                    <FontSize>8</FontSize>
+                    <IsBold>False</IsBold>
+                    <IsItalic>False</IsItalic>
+                    <IsUnderline>False</IsUnderline>
+                    <FontBrush>
+                      <SolidColorBrush>
+                        <Color A="1" R="0" G="0" B="0"></Color>
+                      </SolidColorBrush>
+                    </FontBrush>
+                  </FontInfo>
+                </TextSpan>
+              </LineTextSpan>
+            </FormattedText>
+            <ObjectLayout>
+              <DYMOPoint>
+                <X>0.1451807</X>
+                <Y>0.2488955</Y>
+              </DYMOPoint>
+              <Size>
+                <Width>0.1650597</Width>
+                <Height>0.1545586</Height>
+              </Size>
+            </ObjectLayout>
+          </TextObject>
+          <TextObject>
+            <Name>ITextObject4</Name>
+            <Brushes>
+              <BackgroundBrush>
+                <SolidColorBrush>
+                  <Color A="0" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </BackgroundBrush>
+              <BorderBrush>
+                <SolidColorBrush>
+                  <Color A="1" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </BorderBrush>
+              <StrokeBrush>
+                <SolidColorBrush>
+                  <Color A="1" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </StrokeBrush>
+              <FillBrush>
+                <SolidColorBrush>
+                  <Color A="0" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </FillBrush>
+            </Brushes>
+            <Rotation>Rotation0</Rotation>
+            <OutlineThickness>1</OutlineThickness>
+            <IsOutlined>False</IsOutlined>
+            <BorderStyle>SolidLine</BorderStyle>
+            <Margin>
+              <DYMOThickness Left="0" Top="0" Right="0" Bottom="0" />
+            </Margin>
+            <HorizontalAlignment>Center</HorizontalAlignment>
+            <VerticalAlignment>Middle</VerticalAlignment>
+            <FitMode>AlwaysFit</FitMode>
+            <IsVertical>False</IsVertical>
+            <FormattedText>
+              <FitMode>AlwaysFit</FitMode>
+              <HorizontalAlignment>Center</HorizontalAlignment>
+              <VerticalAlignment>Middle</VerticalAlignment>
+              <IsVertical>False</IsVertical>
+              <LineTextSpan>
+                <TextSpan>
+                  <Text>204700103</Text>
+                  <FontInfo>
+                    <FontName>Segoe UI</FontName>
+                    <FontSize>7.8</FontSize>
+                    <IsBold>False</IsBold>
+                    <IsItalic>False</IsItalic>
+                    <IsUnderline>False</IsUnderline>
+                    <FontBrush>
+                      <SolidColorBrush>
+                        <Color A="1" R="0" G="0" B="0"></Color>
+                      </SolidColorBrush>
+                    </FontBrush>
+                  </FontInfo>
+                </TextSpan>
+              </LineTextSpan>
+            </FormattedText>
+            <ObjectLayout>
+              <DYMOPoint>
+                <X>0.3102404</X>
+                <Y>0.2523795</Y>
+              </DYMOPoint>
+              <Size>
+                <Width>0.5721082</Width>
+                <Height>0.1506024</Height>
+              </Size>
+            </ObjectLayout>
+          </TextObject>
+          <TextObject>
+            <Name>ITextObject5</Name>
+            <Brushes>
+              <BackgroundBrush>
+                <SolidColorBrush>
+                  <Color A="0" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </BackgroundBrush>
+              <BorderBrush>
+                <SolidColorBrush>
+                  <Color A="1" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </BorderBrush>
+              <StrokeBrush>
+                <SolidColorBrush>
+                  <Color A="1" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </StrokeBrush>
+              <FillBrush>
+                <SolidColorBrush>
+                  <Color A="0" R="0" G="0" B="0"></Color>
+                </SolidColorBrush>
+              </FillBrush>
+            </Brushes>
+            <Rotation>Rotation0</Rotation>
+            <OutlineThickness>1</OutlineThickness>
+            <IsOutlined>False</IsOutlined>
+            <BorderStyle>SolidLine</BorderStyle>
+            <Margin>
+              <DYMOThickness Left="0" Top="0" Right="0" Bottom="0" />
+            </Margin>
+            <HorizontalAlignment>Center</HorizontalAlignment>
+            <VerticalAlignment>Middle</VerticalAlignment>
+            <FitMode>AlwaysFit</FitMode>
+            <IsVertical>False</IsVertical>
+            <FormattedText>
+              <FitMode>AlwaysFit</FitMode>
+              <HorizontalAlignment>Center</HorizontalAlignment>
+              <VerticalAlignment>Middle</VerticalAlignment>
+              <IsVertical>False</IsVertical>
+              <LineTextSpan>
+                <TextSpan>
+                  <Text>8b:7d:4k:35:56:22</Text>
+                  <FontInfo>
+                    <FontName>Segoe UI</FontName>
+                    <FontSize>7.5</FontSize>
+                    <IsBold>False</IsBold>
+                    <IsItalic>False</IsItalic>
+                    <IsUnderline>False</IsUnderline>
+                    <FontBrush>
+                      <SolidColorBrush>
+                        <Color A="1" R="0" G="0" B="0"></Color>
+                      </SolidColorBrush>
+                    </FontBrush>
+                  </FontInfo>
+                </TextSpan>
+              </LineTextSpan>
+            </FormattedText>
+            <ObjectLayout>
+              <DYMOPoint>
+                <X>0.1</X>
+                <Y>0.7506627</Y>
+              </DYMOPoint>
+              <Size>
+                <Width>0.8391868</Width>
+                <Height>0.157992</Height>
+              </Size>
+            </ObjectLayout>
+          </TextObject>
+        </LabelObjects>
+      </DynamicLayoutManager>
+    </DYMOLabel>
+    <LabelApplication>Blank</LabelApplication>
+    <DataTable>
+      <Columns></Columns>
+      <Rows></Rows>
+    </DataTable>
+  </DesktopLabel>`
+
+            let printerName = 'DYMO LabelWriter 450'
+
+            let frmHost
+
+            let _host
+
+            document.addEventListener('DOMContentLoaded', start)
+
+            function start () {
+                console.log('START')
+                _getDOMElements()
+            }
+
+            function _getDOMElements () {
+                frmHost = document.getElementById('frmHost')
+
+                frmHost.addEventListener('submit', _onHostSubmit)
+            }
+
+            function _onHostSubmit (event) {
+                if (event.cancelable) event.preventDefault()
+                const formData = new FormData(this)
+                _host = formData.get('frmHostHost') || '127.0.0.1'
+                console.log('HOST', _host)
+                _do()
+                // _printLabel(EX_LABEL)
+                _printLabel(EX_LBL_2)
+            }
+
+            function _do () {
+                return fetch(
+                    _getUrl() + '/' + RES_GET_PRINTERS,
+                )
+                    .then(
+                        result => {
+                            console.log('RESULT')
+                            result.text()
+                                .then(r => {
+                                    console.log('R', r)
+                                })
+                        },
+                        err => {
+                            console.log('ERR', err)
+                        }
+                    )
+            }
+
+            function _printLabel (labelXml) {
+                const labelSetXml = ''
+                const _label = `printerName=${encodeURIComponent(printerName)}&printParamsXml=&labelXml=${encodeURIComponent(labelXml)}&labelSetXml=${encodeURIComponent(labelSetXml)}`
+                return fetch(
+                    _getUrl() + '/' + RES_PRINT_LABEL,
+                    {
+                        method: 'POST',
+                        body: _label,
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+                    }
+                ).then(
+                    result => {
+                        console.log('PRINT RESULT')
+                        result.text().then(
+                            r => console.log('PRINT R', r)
+                        )
+                    },
+                    err => {
+                        console.log('ERR', err)
+                    }
+                )
+            }
+
+            function _getUrl () {
+                return 'https://' + _host + ':' + DEF_PORT + '/' + DEF_PATH
+            }
+        }())
+    </script>
+</body>
+</html>

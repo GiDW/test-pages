@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test page</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+<body ng-controller="rootCtrl as root">
+    <div dir-one
+         inject="root.exposed"></div>
+    <button ng-click="root.onChangeA()">Change to NULL</button>
+    <button ng-click="root.onChangeB()">Change to A</button>
+    <button ng-click="root.onChangeC()">Change to B</button>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+    <script>
+    (function () {
+        'use strict'
+
+        angular.module('testApp', [])
+            .directive('dirOne', dirOne)
+            .controller('rootCtrl', [
+                '$scope',
+                rootCtrl
+            ])
+
+        document.addEventListener('DOMContentLoaded', start)
+
+        function start () {
+            angular.bootstrap(
+                document,
+                [
+                    'testApp'
+                ],
+                {
+                    strictDi: true
+                }
+            );
+        }
+
+        function dirOne () {
+            return {
+                restrict: 'A',
+                scope: {
+                    inject: '<'
+                },
+                controller: [
+                    '$scope',
+                    controller
+                ]
+            }
+
+            function controller ($scope) {
+                console.log('dirOne ctrl')
+
+                this.$postLink = onPostLink
+                this.$onChanges = onChanges
+
+                function onPostLink () {
+                    console.log('dirOne post link', this, $scope)
+                }
+
+                function onChanges (changes) {
+                    console.log('dirOne changes', changes, this, $scope)
+                }
+            }
+        }
+
+        function rootCtrl ($scope) {
+            var root, a, b
+            root = this
+            a= {
+                abc: 12,
+                lol: {
+                    def: true
+                }
+            }
+            b = {
+                yok: "hal",
+                w: {
+                    b: {
+                        d: 44
+                    }
+                }
+            }
+
+            console.log('Root ctrl')
+
+            root.exposed = null
+
+            root.onChangeToNull = onChangeToNull
+            root.onChangeToA = onChangeToA
+            root.onChangeToB = onChangeToB
+
+            function onChangeToNull () {
+                root.exposed = null
+            }
+
+            function onChangeToA () {
+                root.exposed = a
+            }
+
+            function onChangeToB () {
+                root.exposed = b
+            }
+        }
+    }())
+    </script>
+</body>
+</html>
