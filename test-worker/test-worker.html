@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+<body>
+    <h1>Worker</h1>
+    <script>
+(function () {
+    'use strict'
+
+    document.addEventListener('DOMContentLoaded', onDOMContentLoaded)
+    document.addEventListener('load', onLoad)
+
+    function onDOMContentLoaded () {
+        console.log('DOM content loaded')
+        doWorker()
+    }
+
+    function onLoad () {
+        console.log('load')
+        doWorker()
+    }
+
+    function doWorker () {
+        var worker
+
+        if (window.Worker) {
+            worker = new Worker('worker.js')
+            worker.onmessage = function (evt) {
+                console.log('Worker evt', evt)
+            }
+            worker.postMessage('from app')
+        } else {
+            console.log('Worker is not supported')
+        }
+    }
+}())
+    </script>
+</body>
+</html>

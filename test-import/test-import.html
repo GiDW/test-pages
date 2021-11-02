@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+<body>
+    <h1>Import</h1>
+    <div><span>Script loaded: </span><span id="elScriptLoaded"></span></div>
+    <div><span>Dynamic Imports: </span><span id="elDynImportSupported"></span></div>
+    <script type="module" src="module.js"></script>
+    <script nomodule src="script.js"></script>
+    <script>
+(function () {
+    'use strict'
+
+    var elScriptLoaded, elDynImportSupported
+    var txtDynImportSupported
+    var txtScriptLoad
+    var hasDynamicImportSupport = false
+
+    if (window.gdwSomeFunction) {
+        window.gdwSomeFunction()
+    } else {
+        console.log('No script/module loaded!')
+    }
+
+    syncUi()
+
+    window.addEventListener('DOMContentLoaded', function () {
+        console.log ('Window "DOMContentLoaded"')
+        if (window.gdwSomeFunction) {
+            window.gdwSomeFunction()
+        } else {
+            console.log('Window "DOMContentLoaded" - No script/module loaded!')
+        }
+        syncUi()
+    })
+
+    window.addEventListener('load', function () {
+        console.log('Window "load"')
+        if (window.gdwSomeFunction) {
+            window.gdwSomeFunction()
+        } else {
+            console.log('Window "load" - No script/module loaded!')
+        }
+        syncUi()
+
+        hasDynamicImport().then(
+            function (r) {
+                hasDynamicImportSupport = r
+            },
+            function (e) {
+                hasDynamicImportSupport = false
+            }
+        ).then(syncUi)
+
+        // testDynamic()
+    })
+
+    // function testDynamic () {
+    //     import('./dynamic-import.js').then(
+    //         function (r) {
+    //             console.log('Dynamic import', r)
+    //             r.doSomeThing()
+    //         },
+    //         function (e) {
+    //             console.log('Dynaic import ERROR', e)
+    //         }
+    //     )
+    // }
+
+    function syncUi () {
+        syncUiScriptLoaded()
+        syncUiDynamicImport()
+    }
+
+    function syncUiScriptLoaded () {
+        if (!txtScriptLoad) {
+            if (!elScriptLoaded) {
+                elScriptLoaded = document.getElementById('elScriptLoaded')
+            }
+            txtScriptLoad = document.createTextNode('')
+            elScriptLoaded.appendChild(txtScriptLoad)
+        }
+
+        txtScriptLoad.nodeValue = window.gdwScriptType
+            ? window.gdwScriptType
+            : "-"
+    }
+
+    function syncUiDynamicImport () {
+        if (!txtDynImportSupported) {
+            if (!elDynImportSupported) {
+                elDynImportSupported =
+                    document.getElementById('elDynImportSupported')
+            }
+            txtDynImportSupported = document.createTextNode('')
+            elDynImportSupported.appendChild(txtDynImportSupported)
+        }
+
+        txtDynImportSupported.nodeValue = hasDynamicImportSupport
+            ? 'supported'
+            : 'NOT supported'
+    }
+
+    function hasDynamicImport() {
+        try {
+            return new Function("return import('data:text/javascript;base64,Cg==').then(r => true)")();
+        } catch (e) {
+            return Promise.resolve(false);
+        }
+    }
+}())
+    </script>
+</body>
+</html>
