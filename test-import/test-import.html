@@ -3,23 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+              content="
+              default-src * 'self' blob:;
+              connect-src * 'self' blob: ws://* wss://*;
+              img-src * 'self' data: https: http:;
+              style-src 'self' 'unsafe-inline';
+              script-src * 'unsafe-inline' 'unsafe-eval';
+              font-src 'self' data:;
+              worker-src 'self' blob: data:;">
     <title>Import</title>
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 </head>
 <body>
     <h1>Import</h1>
     <div><span>Script loaded: </span><span id="elScriptLoaded"></span></div>
-    <div><span>Dynamic Imports: </span><span id="elDynImportSupported"></span></div>
+    <div><span>Dynamic Imports (static): </span><span id="elDynImportSupportedStatic"></span></div>
+    <div><span>Dynamic Imports (eval): </span><span id="elDynImportSupportedEval"></span></div>
+    <div><span>Counter: </span><span id="elCounter"></span></div>
     <script type="module" src="module.js"></script>
     <script nomodule src="script.js"></script>
     <script>
 (function () {
+    var err
+    try {
+        import('foo').catch(e => {})
+    } catch (e) {
+        err = e
+    }
+    window.gdwSupportedDynImport = typeof err === 'undefined'
+}())
+    </script>
+    <script>
+(function () {
     'use strict'
 
-    var elScriptLoaded, elDynImportSupported
-    var txtDynImportSupported
+    var elScriptLoaded, elDynImportSupportedEval, elDynImportSupportedStatic
+    var elCounter, txtCounter, count
+    var txtDynImportSupportedEval, txtDynImportSupportedStatic
     var txtScriptLoad
     var hasDynamicImportSupport = false
+    var tStartTestDynImport
+
+    console.log('readystate', document.readyState)
 
     if (window.gdwSomeFunction) {
         window.gdwSomeFunction()
@@ -27,10 +53,22 @@
         console.log('No script/module loaded!')
     }
 
+    setTimeout(function () {
+        var script
+        console.log('timeout')
+        script = document.createElement('script')
+        script.src = 'extra.js'
+        script.async = true
+        document.body.appendChild(script)
+    }, 5000)
+
     syncUi()
 
     window.addEventListener('DOMContentLoaded', function () {
-        console.log ('Window "DOMContentLoaded"')
+        console.log ('[window] "DOMContentLoaded"')
+
+        startCounter()
+
         if (window.gdwSomeFunction) {
             window.gdwSomeFunction()
         } else {
@@ -40,7 +78,7 @@
     })
 
     window.addEventListener('load', function () {
-        console.log('Window "load"')
+        console.log('[window] "load"')
         if (window.gdwSomeFunction) {
             window.gdwSomeFunction()
         } else {
@@ -48,17 +86,28 @@
         }
         syncUi()
 
+        tStartTestDynImport = Date.now()
         hasDynamicImport().then(
             function (r) {
+                var t = Date.now()
+                console.log('Dyn check done', t - tStartTestDynImport)
                 hasDynamicImportSupport = r
             },
             function (e) {
+                var t = Date.now()
+                console.log('Dyn check done', t - tStartTestDynImport)
                 hasDynamicImportSupport = false
             }
         ).then(syncUi)
 
         // testDynamic()
     })
+
+    document.addEventListener('readystatechange', function () {
+        console.log('[document] "readystatechange"', document.readyState)
+    })
+
+    console.log('readystate after', document.readyState)
 
     // function testDynamic () {
     //     import('./dynamic-import.js').then(
@@ -92,18 +141,54 @@
     }
 
     function syncUiDynamicImport () {
-        if (!txtDynImportSupported) {
-            if (!elDynImportSupported) {
-                elDynImportSupported =
-                    document.getElementById('elDynImportSupported')
+        if (!txtDynImportSupportedEval) {
+            if (!elDynImportSupportedEval) {
+                elDynImportSupportedEval =
+                    document.getElementById('elDynImportSupportedEval')
             }
-            txtDynImportSupported = document.createTextNode('')
-            elDynImportSupported.appendChild(txtDynImportSupported)
+            txtDynImportSupportedEval = document.createTextNode('')
+            elDynImportSupportedEval.appendChild(txtDynImportSupportedEval)
         }
 
-        txtDynImportSupported.nodeValue = hasDynamicImportSupport
+        txtDynImportSupportedEval.nodeValue = hasDynamicImportSupport
             ? 'supported'
             : 'NOT supported'
+
+        if (!txtDynImportSupportedStatic) {
+            if (!elDynImportSupportedStatic) {
+                elDynImportSupportedStatic =
+                    document.getElementById('elDynImportSupportedStatic')
+            }
+            txtDynImportSupportedStatic = document.createTextNode('')
+            elDynImportSupportedStatic.appendChild(txtDynImportSupportedStatic)
+        }
+
+        txtDynImportSupportedStatic.nodeValue = window.gdwSupportedDynImport
+            ? 'supported'
+            : 'NOT supported'
+    }
+
+    function startCounter () {
+        count = 0
+        syncCounterUi()
+        setInterval(counterInterval, 300)
+    }
+
+    function counterInterval () {
+        count++
+        count = count % 10
+        syncCounterUi()
+    }
+
+    function syncCounterUi () {
+        if (!txtCounter) {
+            if (!elCounter) {
+                elCounter = document.getElementById('elCounter')
+            }
+            txtCounter = document.createTextNode('0')
+            elCounter.appendChild(txtCounter)
+        }
+        txtCounter.nodeValue = '' + count
     }
 
     function hasDynamicImport() {
