@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+              content="
+              default-src * 'self' blob:;
+              connect-src * 'self' blob: ws://* wss://*;
+              img-src * 'self' data: https: http:;
+              style-src 'self' 'unsafe-inline';
+              script-src * 'unsafe-inline' 'unsafe-eval';
+              font-src 'self' data:;
+              worker-src 'self' blob: data:;">
+    <title>iFrame</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            background-color: cadetblue;
+        }
+    </style>
+</head>
+<body>
+    <h1>INSIDE</h1>
+</html>
