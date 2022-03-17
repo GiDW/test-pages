@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colors</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <style>
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    .colors-container {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        white-space: nowrap;
+        overflow-x: scroll;
+        scroll-snap-type: x mandatory;
+    }
+    .ccc {
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        scroll-snap-align: start;
+    }
+    .c-white {
+        background-color: #ffffff;
+    }
+    .c-black {
+        background-color: #000000;
+    }
+    .c-red {
+        background-color: #ff0000;
+    }
+    .c-green {
+        background-color: #00ff00;
+    }
+    .c-blue {
+        background-color: #0000ff;
+    }
+    .c-grey-1 {
+        background-color: #bdbdbd;
+    }
+    .c-grey-2 {
+        background-color: #424242;
+    }
+    .c-grey-3 {
+        background-color: #212121;
+    }
+    .c-bas-highlight-on-dark {
+        background-color: #ff881d;
+    }
+    .c-bas-highlight-on-light {
+        background-color: #d86600;
+    }
+    .c-bas-highlight-on-dark-ellie {
+        background-color: #fca455;
+    }
+    @keyframes fade_out {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+    .c-toast {
+        position: absolute;
+        box-sizing: border-box;
+        bottom: 10%;
+        left: 20%;
+        right: 20%;
+        padding: 1rem 2rem;
+        border-radius: 99999px;
+        text-align: center;
+        color: white;
+        background-color: rgba(21, 21, 21, .4);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        opacity: 0;
+        user-select: none;
+    }
+    </style>
+</head>
+<body><!--
+--><div class="colors-container"><!--
+        --><div class="ccc c-white"></div><!--
+        --><div class="ccc c-black"></div><!--
+        --><div class="ccc c-red"></div><!--
+        --><div class="ccc c-green"></div><!--
+        --><div class="ccc c-blue"></div><!--
+        --><div class="ccc c-grey-1"></div><!--
+        --><div class="ccc c-grey-2"></div><!--
+        --><div class="ccc c-grey-3"></div><!--
+        --><div class="ccc c-bas-highlight-on-dark"></div><!--
+        --><div class="ccc c-bas-highlight-on-light"></div><!--
+        --><div class="ccc c-bas-highlight-on-dark-ellie"></div><!--
+        --><div id="c-toast" class="c-toast"></div><!--
+    --></div><!--
+--><script>
+((function () {
+    'use strict'
+    var cccElements, cToastEl, cToastTxt
+    var cToastTimeoutId
+
+    cccElements = []
+
+    document.addEventListener('DOMContentLoaded', domContentLoaded)
+
+    function domContentLoaded () {
+
+        var elems, length, i, el
+
+        cToastEl = document.getElementById('c-toast')
+        cToastTxt = document.createTextNode('empty')
+        cToastEl.appendChild(cToastTxt)
+
+        cccElements = document.getElementsByClassName('ccc')
+
+        length = cccElements.length
+        for (i = 0; i < length; i++) {
+
+            el = cccElements[i]
+            el.addEventListener('click', onCccClick)
+        }
+    }
+
+    function onCccClick () {
+        var computedStyle
+
+        computedStyle = window.getComputedStyle(this)
+
+        cToastTxt.nodeValue = computedStyle['background-color']
+
+        cToastEl.style.removeProperty('animation')
+        clearTimeout(cToastTimeoutId)
+        cToastTimeoutId = setTimeout(onCToastTimeout)
+    }
+
+    function onCToastTimeout () {
+        cToastEl.style.setProperty('animation', '2s linear 0s fade_out')
+    }
+})())
+</script></body>
+</html>
