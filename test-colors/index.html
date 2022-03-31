@@ -215,4 +215,11 @@
     }
 
 })())
+</script><script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then(
+        () => console.log('Service Worker Registered'),
+        err => console.warn('Failed to register Service Worker', err)
+    )
+}
 </script></body></html>
